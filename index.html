@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aufbauorganisation – funktional & divisional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b1930; --ink-soft:#4a4766; --muted:#7d7a94;
+    --paper:#f6f7fb; --card:#ffffff; --line:#c9ccdd; --line-strong:#9aa0bd;
+    --fn:#5848c9;  --fn-bg:#efedfd; --fn-ink:#362a8f;
+    --dv:#0e8e6e;  --dv-bg:#e2f5ee; --dv-ink:#0a5f4a;
+    --ok:#0e8e6e; --bad:#c23b4b; --bad-bg:#fcebed;
+    --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --disp:'Space Grotesk',var(--sans);
+    --r:14px; --maxw:960px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  h1,h2,h3{font-family:var(--disp);font-weight:600;line-height:1.15;letter-spacing:-.01em;margin:0}
+  p{margin:0 0 14px}
+  a{color:var(--fn)}
+
+  /* hero */
+  header.hero{padding:64px 0 36px;position:relative;overflow:hidden}
+  .hero .kicker{font-family:var(--disp);font-weight:500;color:var(--muted);font-size:15px;margin:0 0 14px}
+  .hero h1{font-size:clamp(30px,5vw,50px);font-weight:700}
+  .hero h1 .a{color:var(--fn)} .hero h1 .b{color:var(--dv)}
+  .hero .sub{font-size:19px;color:var(--ink-soft);max-width:60ch;margin-top:16px}
+  .hero .meta{margin-top:22px;font-size:14px;color:var(--muted)}
+
+  section{padding:40px 0;border-top:1px solid var(--line)}
+  .eyebrow{font-family:var(--disp);font-weight:600;color:var(--fn);font-size:14px;margin:0 0 6px}
+  section.dv-sec .eyebrow{color:var(--dv)}
+  h2{font-size:clamp(22px,3.4vw,30px)}
+  .lead{font-size:17px;color:var(--ink-soft);max-width:68ch;margin-top:10px}
+
+  /* generic box look (blueprint) */
+  .node{background:var(--card);border:1.5px solid var(--line-strong);border-radius:10px;padding:10px 14px;text-align:center;font-weight:500}
+  .node .t{font-weight:600} .node .s{font-size:12.5px;color:var(--muted)}
+
+  /* liniensystem mini chart */
+  .mini{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 18px;
+    background-image:linear-gradient(var(--paper) 1px,transparent 1px),linear-gradient(90deg,var(--paper) 1px,transparent 1px);
+    background-size:22px 22px;background-position:-1px -1px}
+  .tree{display:flex;flex-direction:column;align-items:center}
+  .tree .top{min-width:220px}
+  .drop{width:2px;height:22px;background:var(--line-strong)}
+  .bus-wrap{position:relative;width:100%;max-width:560px}
+  .bus{height:2px;background:var(--line-strong);margin:0 auto;width:66%}
+  .leaves{display:flex;justify-content:center;gap:clamp(10px,4vw,46px);margin-top:0}
+  .leaf{display:flex;flex-direction:column;align-items:center}
+  .leaf .drop{height:18px}
+  .leaf .node{min-width:120px}
+  .leaf.hl .node{border-color:var(--fn);box-shadow:0 0 0 3px var(--fn-bg)}
+  .path-note{text-align:center;color:var(--muted);font-size:13.5px;margin-top:14px;min-height:1.2em}
+
+  /* morph switch */
+  .switch{display:inline-flex;background:var(--card);border:1.5px solid var(--line-strong);border-radius:999px;padding:4px;gap:4px;margin:4px 0 6px}
+  .switch button{font:600 15px var(--disp);border:0;background:transparent;color:var(--ink-soft);padding:9px 20px;border-radius:999px;cursor:pointer;transition:background .18s,color .18s}
+  .switch button[aria-pressed="true"][data-mode="fn"]{background:var(--fn);color:#fff}
+  .switch button[aria-pressed="true"][data-mode="dv"]{background:var(--dv);color:#fff}
+  .morph{display:grid;grid-template-columns:1.25fr .85fr;gap:22px;margin-top:18px;align-items:start}
+  @media(max-width:760px){.morph{grid-template-columns:1fr}}
+  .chartbox{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 10px;
+    background-image:linear-gradient(var(--paper) 1px,transparent 1px),linear-gradient(90deg,var(--paper) 1px,transparent 1px);
+    background-size:22px 22px}
+  #orgchart{width:100%;height:auto;display:block;transition:opacity .2s}
+  .facts{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+  .facts h3{font-size:18px;margin-bottom:12px}
+  .facts dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 12px;font-size:14.5px}
+  .facts dt{color:var(--muted);font-weight:600}
+  .facts dd{margin:0;color:var(--ink)}
+  .tag{display:inline-block;font-weight:600;font-size:13px;padding:3px 10px;border-radius:999px}
+  .tag.fn{background:var(--fn-bg);color:var(--fn-ink)} .tag.dv{background:var(--dv-bg);color:var(--dv-ink)}
+
+  /* tasks */
+  .q{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+  .q .stem{font-weight:500;margin-bottom:12px}
+  .q .stem b{font-weight:600}
+  .choices{display:flex;gap:10px;flex-wrap:wrap}
+  .choice{font:600 14.5px var(--sans);cursor:pointer;border:1.5px solid var(--line-strong);background:var(--card);color:var(--ink);
+    padding:9px 16px;border-radius:999px;transition:transform .08s,border-color .15s,background .15s}
+  .choice:hover{border-color:var(--ink-soft)}
+  .choice:active{transform:translateY(1px)}
+  .choice:disabled{cursor:default;opacity:1}
+  .choice.correct{background:var(--dv-bg);border-color:var(--dv);color:var(--dv-ink)}
+  .choice.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+  .fb{font-size:14px;margin-top:10px;min-height:1.2em;color:var(--ink-soft)}
+  .fb.ok{color:var(--dv-ink)} .fb.no{color:var(--bad)}
+  .scorebar{display:flex;align-items:center;gap:12px;margin-top:6px;font-size:14px;color:var(--muted)}
+  .scorebar .pill{background:var(--fn-bg);color:var(--fn-ink);font-weight:600;border-radius:999px;padding:4px 12px}
+
+  /* fill struktogramm task */
+  .pool{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 20px}
+  .chip{font:600 14px var(--sans);background:var(--fn-bg);color:var(--fn-ink);border:1.5px solid transparent;
+    padding:8px 14px;border-radius:10px;cursor:grab;user-select:none;transition:transform .08s,opacity .15s}
+  .chip:active{transform:scale(.97)}
+  .chip.sel{border-color:var(--fn);box-shadow:0 0 0 3px var(--fn-bg)}
+  .chip.used{opacity:.28;pointer-events:none}
+  .fill-chart{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 12px;
+    background-image:linear-gradient(var(--paper) 1px,transparent 1px),linear-gradient(90deg,var(--paper) 1px,transparent 1px);background-size:22px 22px}
+  .slots{display:flex;justify-content:center;gap:clamp(8px,2.2vw,18px);flex-wrap:wrap;margin-top:0}
+  .slot{min-width:118px;min-height:52px;border:1.5px dashed var(--line-strong);border-radius:10px;background:var(--card);
+    display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600;font-size:14px;color:var(--ink);
+    cursor:pointer;padding:6px 8px;transition:border-color .15s,background .15s}
+  .slot.over{border-color:var(--fn);background:var(--fn-bg)}
+  .slot.filled{border-style:solid}
+  .slot.correct{border-color:var(--dv);background:var(--dv-bg);color:var(--dv-ink)}
+  .slot.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .btn{font:600 15px var(--disp);border:0;border-radius:10px;padding:11px 20px;cursor:pointer}
+  .btn.primary{background:var(--fn);color:#fff}
+  .btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line-strong)}
+  .btn:active{transform:translateY(1px)}
+
+  .merksatz{background:var(--ink);color:#fff;border-radius:var(--r);padding:26px 26px}
+  .merksatz h3{color:#fff;font-size:20px;margin-bottom:10px}
+  .merksatz p{color:#d9d8ea;margin:0}
+  .merksatz b.fn{color:#c3bcff} .merksatz b.dv{color:#86e3cb}
+
+  footer{padding:30px 0 60px;color:var(--muted);font-size:13px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+  :focus-visible{outline:3px solid var(--fn);outline-offset:2px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">Wirtschaftsinformatik · Jahrgangsstufe 10</p>
+    <h1>Aufbauorganisation:<br>vom Liniensystem zu <span class="a">funktional</span> &amp; <span class="b">divisional</span></h1>
+    <p class="sub">Ein Unternehmen ist ein vernetztes System. Hier siehst du, wie dieselbe Firma – ein Verkehrsbetrieb – auf zwei Arten geordnet werden kann, und übst den Unterschied interaktiv.</p>
+    <p class="meta">Beispiel durchgehend: ein städtischer Verkehrsbetrieb (ÖPNV).</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Die Grundlage</p>
+    <h2>Das Liniensystem</h2>
+    <p class="lead">Beide Organisationsformen bauen auf dem <b>Einliniensystem</b> auf: Jede Stelle hat genau <b>einen</b> Vorgesetzten. Weisungen laufen eine klare Linie von oben nach unten – daher der Name. Fahre über einen Kasten, um seinen Weg zur Leitung zu sehen.</p>
+    <div class="mini">
+      <div class="tree">
+        <div class="node top"><div class="t">Unternehmensleitung</div></div>
+        <div class="drop"></div>
+        <div class="bus-wrap"><div class="bus"></div></div>
+        <div class="leaves" id="lineLeaves">
+          <div class="leaf"><div class="drop"></div><div class="node">Stelle A</div></div>
+          <div class="leaf"><div class="drop"></div><div class="node">Stelle B</div></div>
+          <div class="leaf"><div class="drop"></div><div class="node">Stelle C</div></div>
+        </div>
+      </div>
+      <p class="path-note" id="lineNote">Jede Stelle ist genau einer Leitung unterstellt – eine einzige Linie.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Der Unterschied</p>
+    <h2>Dieselbe Firma, zwei Gliederungen</h2>
+    <p class="lead">Wechsle die Sicht und beobachte, wie sich das Organigramm und die Eigenschaften ändern.</p>
+    <div class="switch" role="group" aria-label="Organisationsform wählen">
+      <button data-mode="fn" aria-pressed="true" onclick="setMode('fn')">Funktional</button>
+      <button data-mode="dv" aria-pressed="false" onclick="setMode('dv')">Divisional</button>
+    </div>
+    <div class="morph">
+      <div class="chartbox"><svg id="orgchart" role="img" aria-label="Organigramm des Verkehrsbetriebs"></svg></div>
+      <div class="facts" id="facts"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Aufgabe 1</p>
+    <h2>Funktional oder divisional?</h2>
+    <p class="lead">Lies jede Situation und wähle die passende Organisationsform. Du bekommst sofort Rückmeldung.</p>
+    <div class="scorebar"><span class="pill" id="s1pill">0 / 5</span><span>richtig zugeordnet</span></div>
+    <div id="q1"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Aufgabe 2</p>
+    <h2>Struktogramm bauen: funktional</h2>
+    <p class="lead">Der Verkehrsbetrieb wird <b>nach Aufgaben</b> gegliedert. Ziehe die Begriffe in die Kästen – oder tippe erst einen Begriff an und dann einen Kasten. Reihenfolge egal.</p>
+    <div class="pool" id="pool"></div>
+    <div class="fill-chart">
+      <div class="tree">
+        <div class="node top" style="min-width:230px"><div class="t">Unternehmensleitung</div><div class="s">Verkehrsbetrieb</div></div>
+        <div class="drop"></div>
+        <div class="bus-wrap"><div class="bus" style="width:84%"></div></div>
+        <div class="slots" id="slots"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="checkFill()">Prüfen</button>
+      <button class="btn ghost" onclick="solveFill()">Lösung zeigen</button>
+      <button class="btn ghost" onclick="resetFill()">Zurücksetzen</button>
+    </div>
+    <p class="fb" id="fillFb"></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Aufgabe 3</p>
+    <h2>Kurzer Wissenscheck</h2>
+    <p class="lead">Vier Fragen zum Festigen. Pro Frage eine Antwort wählen.</p>
+    <div class="scorebar"><span class="pill" id="s3pill">0 / 4</span><span>richtig beantwortet</span></div>
+    <div id="q3"></div>
+  </div>
+</section>
+
+<section class="dv-sec">
+  <div class="wrap">
+    <div class="merksatz">
+      <h3>Zum Merken</h3>
+      <p><b class="fn">Funktional</b> = Gliederung nach dem <i>Was man tut</i> (Einkauf, Fahrbetrieb, Vertrieb). &nbsp;
+      <b class="dv">Divisional</b> = Gliederung nach dem <i>Woran man arbeitet</i> (Bus, Straßenbahn, U-Bahn) – jede Sparte mit eigenen Funktionen.
+      Faustregel: wenig verschiedene Angebote → funktional; viele Produkte oder Regionen → divisional.</p>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">Unterrichtsmaterial Wirtschaftsinformatik · Aufbauorganisation · funktional vs. divisional</div></footer>
+
+<script>
+/* ---------- Liniensystem hover: highlight single path ---------- */
+document.querySelectorAll('#lineLeaves .leaf').forEach((leaf,i)=>{
+  const label=['A','B','C'][i];
+  const set=on=>{leaf.classList.toggle('hl',on);
+    document.getElementById('lineNote').textContent = on
+      ? 'Stelle '+label+' → genau eine Linie hinauf zur Unternehmensleitung.'
+      : 'Jede Stelle ist genau einer Leitung unterstellt – eine einzige Linie.';};
+  leaf.addEventListener('mouseenter',()=>set(true));
+  leaf.addEventListener('mouseleave',()=>set(false));
+  leaf.tabIndex=0;
+  leaf.addEventListener('focus',()=>set(true));
+  leaf.addEventListener('blur',()=>set(false));
+});
+
+/* ---------- morphing org chart (SVG) ---------- */
+const FN_COL={box:'#efedfd',stroke:'#5848c9',ink:'#362a8f'};
+const DV_COL={box:'#e2f5ee',stroke:'#0e8e6e',ink:'#0a5f4a'};
+const TOPC={box:'#edece6',stroke:'#8a887f',ink:'#2b2b28'};
+function rbox(x,y,w,h,c,title,sub){
+  let t=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="${c.box}" stroke="${c.stroke}" stroke-width="1.5"/>`;
+  const cx=x+w/2;
+  if(sub){t+=`<text x="${cx}" y="${y+h/2-6}" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="600" fill="${c.ink}">${title}</text>`;
+          t+=`<text x="${cx}" y="${y+h/2+12}" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#7d7a94">${sub}</text>`;}
+  else   {t+=`<text x="${cx}" y="${y+h/2+1}" text-anchor="middle" dominant-baseline="middle" font-family="Inter,sans-serif" font-size="${title.length>12?12.5:13.5}" font-weight="600" fill="${c.ink}">${title}</text>`;}
+  return t;
+}
+function ln(x1,y1,x2,y2){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#9aa0bd" stroke-width="1.5"/>`;}
+function chartFunctional(){
+  const W=680,H=250,cx=W/2;let s=[`<rect x="0" y="0" width="${W}" height="${H}" fill="none"/>`];
+  s.push(rbox(cx-95,20,190,46,TOPC,'Unternehmensleitung','Verkehrsbetrieb'));
+  const labels=['Einkauf','Fahrbetrieb','Technik','Vertrieb','Verwaltung'];
+  const n=labels.length,bw=116,gap=(W-40-n*bw)/(n-1),y=160;
+  const cxs=labels.map((_,i)=>20+bw/2+i*(bw+gap));
+  s.push(ln(cx,66,cx,96));
+  s.push(ln(cxs[0],96,cxs[n-1],96));
+  cxs.forEach(c=>{s.push(ln(c,96,c,y));});
+  labels.forEach((l,i)=>s.push(rbox(cxs[i]-bw/2,y,bw,50,FN_COL,l)));
+  return {svg:s.join(''),vb:`0 0 ${W} ${H}`};
+}
+function chartDivisional(){
+  const W=680,H=330,cx=W/2;let s=[];
+  s.push(rbox(cx-95,16,190,46,TOPC,'Unternehmensleitung','Verkehrsbetrieb'));
+  const sp=['Sparte Bus','Sparte Straßenbahn','Sparte U-Bahn'];
+  const sw=176,spy=112,n=3,gap=(W-40-n*sw)/(n-1);
+  const spcx=sp.map((_,i)=>20+sw/2+i*(sw+gap));
+  s.push(ln(cx,62,cx,86)); s.push(ln(spcx[0],86,spcx[2],86));
+  spcx.forEach(c=>s.push(ln(c,86,c,spy)));
+  sp.forEach((l,i)=>s.push(rbox(spcx[i]-sw/2,spy,sw,46,DV_COL,l)));
+  const subs=['Fahrbetrieb','Technik','Vertrieb'],subw=52,suby=250;
+  spcx.forEach(c=>{
+    const scx=[c-62,c,c+62];
+    s.push(ln(c,158,c,196)); s.push(ln(scx[0],196,scx[2],196));
+    scx.forEach((x,k)=>{s.push(ln(x,196,x,suby));
+      s.push(`<rect x="${x-subw/2}" y="${suby}" width="${subw}" height="40" rx="7" fill="#fff" stroke="#9b7fd8" stroke-width="1.3"/>`);
+      s.push(`<text x="${x}" y="${suby+24}" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" font-weight="600" fill="#362a8f">${subs[k]}</text>`);
+    });
+  });
+  return {svg:s.join(''),vb:`0 0 ${W} ${H}`};
+}
+const FACTS={
+  fn:{tag:'<span class="tag fn">Funktionale Organisation</span>',rows:[
+    ['Gliederung nach','Aufgaben / Funktionen'],
+    ['2. Ebene','Einkauf · Fahrbetrieb · Technik · Vertrieb · Verwaltung'],
+    ['Vorteil','Spezialisierung, Synergien, keine Doppelarbeit'],
+    ['Nachteil','Leitung schnell überlastet, „Abteilungsdenken“'],
+    ['Passt für','kleine &amp; mittlere Unternehmen, ein Angebot'],
+  ]},
+  dv:{tag:'<span class="tag dv">Divisionale Organisation</span>',rows:[
+    ['Gliederung nach','Sparten / Objekten (Produkte, Regionen)'],
+    ['2. Ebene','Sparte Bus · Straßenbahn · U-Bahn – je eigene Funktionen'],
+    ['Vorteil','Kundennähe, Flexibilität, klare Verantwortung (Profit-Center)'],
+    ['Nachteil','Doppelfunktionen (teurer), Spartenegoismus'],
+    ['Passt für','große Unternehmen mit vielen Produkten / Regionen'],
+  ]},
+};
+function setMode(m){
+  document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.mode===m));
+  const chart=m==='fn'?chartFunctional():chartDivisional();
+  const svg=document.getElementById('orgchart');
+  svg.style.opacity=0;
+  setTimeout(()=>{svg.setAttribute('viewBox',chart.vb);svg.innerHTML=chart.svg;svg.style.opacity=1;},120);
+  const f=FACTS[m];
+  document.getElementById('facts').innerHTML=f.tag+'<dl>'+f.rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')+'</dl>';
+}
+setMode('fn');
+
+/* ---------- Aufgabe 1 ---------- */
+const Q1=[
+  {t:'Ein regionaler Verkehrsbetrieb gliedert sich in die Abteilungen Fahrbetrieb, Technik, Vertrieb und Verwaltung.',a:'fn',h:'Gliederung nach Aufgaben/Funktionen.'},
+  {t:'Ein Automobilkonzern führt getrennte Geschäftsbereiche für Pkw, Lkw und Motorräder – jeder mit eigener Produktion und eigenem Vertrieb.',a:'dv',h:'Gliederung nach Produkten; jede Sparte mit eigenen Funktionen.'},
+  {t:'Eine kleine Bäckerei hat die Bereiche Einkauf, Backstube und Verkauf.',a:'fn',h:'Kleinbetrieb, Gliederung nach Tätigkeiten.'},
+  {t:'Ein Technologiekonzern ist in die Sparten Smartphones, Haushaltsgeräte und Halbleiter unterteilt.',a:'dv',h:'Gliederung nach Produktsparten.'},
+  {t:'Ein Verkehrsbetrieb ordnet sich nach Bus, Straßenbahn und U-Bahn – jede mit eigenem Fahrbetrieb, eigener Technik und eigenem Vertrieb.',a:'dv',h:'Gliederung nach Objekten; eigene Funktionen je Sparte.'},
+];
+let s1=0,s1done=new Set();
+const q1=document.getElementById('q1');
+Q1.forEach((it,i)=>{
+  const el=document.createElement('div');el.className='q';
+  el.innerHTML=`<div class="stem"><b>${String.fromCharCode(97+i)})</b> ${it.t}</div>
+    <div class="choices">
+      <button class="choice" data-c="fn">funktional</button>
+      <button class="choice" data-c="dv">divisional</button>
+    </div><div class="fb"></div>`;
+  const fb=el.querySelector('.fb');
+  el.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>{
+    const pick=btn.dataset.c,correct=pick===it.a;
+    el.querySelectorAll('.choice').forEach(b=>{b.disabled=true;
+      if(b.dataset.c===it.a)b.classList.add('correct');});
+    if(!correct)btn.classList.add('wrong');
+    fb.textContent=(correct?'Richtig. ':'Nicht ganz – richtig ist „'+(it.a==='fn'?'funktional':'divisional')+'“. ')+it.h;
+    fb.className='fb '+(correct?'ok':'no');
+    if(correct&&!s1done.has(i)){s1done.add(i);s1++;document.getElementById('s1pill').textContent=s1+' / 5';}
+  }));
+  q1.appendChild(el);
+});
+
+/* ---------- Aufgabe 2: fill functional struktogramm ---------- */
+const WORDS=['Einkauf','Fahrbetrieb','Technik & Werkstatt','Vertrieb & Marketing','Verwaltung & Finanzen'];
+const pool=document.getElementById('pool'),slotsEl=document.getElementById('slots'),fillFb=document.getElementById('fillFb');
+let selChip=null;
+function buildPool(){
+  pool.innerHTML='';
+  WORDS.forEach(w=>{
+    const c=document.createElement('div');c.className='chip';c.textContent=w;c.draggable=true;c.dataset.w=w;
+    c.addEventListener('click',()=>{if(c.classList.contains('used'))return;
+      if(selChip===c){c.classList.remove('sel');selChip=null;}
+      else{if(selChip)selChip.classList.remove('sel');selChip=c;c.classList.add('sel');}});
+    c.addEventListener('dragstart',e=>{e.dataTransfer.setData('text',w);selChip=c;});
+    pool.appendChild(c);
+  });
+}
+function buildSlots(){
+  slotsEl.innerHTML='';
+  for(let i=0;i<5;i++){
+    const wrap=document.createElement('div');wrap.className='leaf';
+    const drop=document.createElement('div');drop.className='drop';drop.style.height='18px';
+    const s=document.createElement('div');s.className='slot';s.dataset.i=i;s.textContent='';
+    s.addEventListener('dragover',e=>{e.preventDefault();s.classList.add('over');});
+    s.addEventListener('dragleave',()=>s.classList.remove('over'));
+    s.addEventListener('drop',e=>{e.preventDefault();s.classList.remove('over');place(s,e.dataTransfer.getData('text'));});
+    s.addEventListener('click',()=>{
+      if(selChip){place(s,selChip.dataset.w);}
+      else if(s.dataset.w){ // remove
+        freeWord(s.dataset.w);s.textContent='';delete s.dataset.w;s.className='slot';}
+    });
+    wrap.appendChild(drop);wrap.appendChild(s);slotsEl.appendChild(wrap);
+  }
+}
+function markUsed(){document.querySelectorAll('.chip').forEach(c=>{
+  const used=[...slotsEl.querySelectorAll('.slot')].some(s=>s.dataset.w===c.dataset.w);
+  c.classList.toggle('used',used);if(used)c.classList.remove('sel');});}
+function freeWord(){markUsed();}
+function place(slot,word){
+  if(!word)return;
+  // if word already placed elsewhere, clear that slot
+  slotsEl.querySelectorAll('.slot').forEach(o=>{if(o!==slot&&o.dataset.w===word){o.textContent='';delete o.dataset.w;o.className='slot';}});
+  slot.textContent=word;slot.dataset.w=word;slot.className='slot filled';
+  if(selChip){selChip.classList.remove('sel');selChip=null;}
+  markUsed();fillFb.textContent='';fillFb.className='fb';
+}
+function checkFill(){
+  const slots=[...slotsEl.querySelectorAll('.slot')];
+  const filled=slots.filter(s=>s.dataset.w);
+  if(filled.length<5){fillFb.textContent='Es sind noch nicht alle Kästen belegt.';fillFb.className='fb no';return;}
+  const set=new Set(filled.map(s=>s.dataset.w));
+  const ok=set.size===5&&[...set].every(w=>WORDS.includes(w));
+  slots.forEach(s=>{s.classList.remove('correct','wrong');s.classList.add(ok?'correct':'wrong');});
+  fillFb.textContent=ok?'Perfekt! Alle fünf Funktionsbereiche stehen auf der 2. Ebene – die Reihenfolge ist egal.':'Da stimmt noch etwas nicht. Jeder der fünf Begriffe gehört genau einmal in einen Kasten.';
+  fillFb.className='fb '+(ok?'ok':'no');
+}
+function solveFill(){
+  buildSlots();
+  slotsEl.querySelectorAll('.slot').forEach((s,i)=>{s.textContent=WORDS[i];s.dataset.w=WORDS[i];s.className='slot filled correct';});
+  markUsed();fillFb.textContent='Musterlösung – jede Anordnung mit diesen fünf Begriffen ist richtig.';fillFb.className='fb ok';
+}
+function resetFill(){buildPool();buildSlots();selChip=null;fillFb.textContent='';fillFb.className='fb';}
+buildPool();buildSlots();
+
+/* ---------- Aufgabe 3: quiz ---------- */
+const Q3=[
+  {t:'Wonach gliedert die <b>divisionale</b> Organisation die 2. Ebene?',o:['Nach Sparten / Objekten (Produkte, Regionen)','Nach Funktionen (Einkauf, Produktion …)','Nach der Zahl der Mitarbeiter'],a:0},
+  {t:'Welcher Nachteil ist typisch für die <b>divisionale</b> Organisation?',o:['Doppelfunktionen und dadurch höhere Kosten','Zu wenig Kundennähe','Keine klare Verantwortung'],a:0},
+  {t:'Beide Organisationsformen beruhen auf dem …',o:['Einliniensystem','Mehrliniensystem','Netzwerk ohne Hierarchie'],a:0},
+  {t:'Für welches Unternehmen passt eher die <b>funktionale</b> Organisation?',o:['Kleine Bäckerei mit Einkauf, Backstube, Verkauf','Konzern mit Sparten Pkw, Lkw und Motorrad','Weltkonzern mit Regionen Europa, Asien, Amerika'],a:0},
+];
+let s3=0,s3done=new Set();
+const q3=document.getElementById('q3');
+Q3.forEach((it,i)=>{
+  const el=document.createElement('div');el.className='q';
+  el.innerHTML=`<div class="stem"><b>${i+1}.</b> ${it.t}</div><div class="choices"></div><div class="fb"></div>`;
+  const ch=el.querySelector('.choices'),fb=el.querySelector('.fb');
+  it.o.forEach((opt,j)=>{
+    const b=document.createElement('button');b.className='choice';b.innerHTML=opt;
+    b.addEventListener('click',()=>{
+      const correct=j===it.a;
+      ch.querySelectorAll('.choice').forEach((x,k)=>{x.disabled=true;if(k===it.a)x.classList.add('correct');});
+      if(!correct)b.classList.add('wrong');
+      fb.textContent=correct?'Richtig.':'Nicht ganz – die erste Antwort ist korrekt.';
+      fb.className='fb '+(correct?'ok':'no');
+      if(correct&&!s3done.has(i)){s3done.add(i);s3++;document.getElementById('s3pill').textContent=s3+' / 4';}
+    });
+    ch.appendChild(b);
+  });
+  q3.appendChild(el);
+});
+</script>
+</body>
+</html>
